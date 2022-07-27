@@ -1,4 +1,5 @@
 export * from './CandyMachineData';
+export * from './CometMintSettings';
 export * from './ConfigLine';
 export * from './Creator';
 export * from './EndSettingType';
