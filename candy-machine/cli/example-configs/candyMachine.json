@@ -1,0 +1,28 @@
+{
+  "number": 1000,
+  "symbol": "TCC",
+  "sellerFeeBasisPoints": 500,
+  "creators": [
+    {
+      "address": "HGyYRWMfXurNiGce5cBdrSkgourS97Tp8poDRuaDVZUD",
+      "verified": true,
+      "share": 100
+    }
+  ],
+  "noRetainAuthority": false,
+  "noMutable": false,
+  "price": 1,
+  "splToken": null,
+  "splTokenAccount": null,
+  "solTreasuryAccount": "HGyYRWMfXurNiGce5cBdrSkgourS97Tp8poDRuaDVZUD",
+  "gatekeeper": null,
+  "goLiveDate": "27 Jul 2022 00:00:00 GMT",
+  "endSettings": null,
+  "hiddenSettings": null,
+  "whitelistMintSettings": null,
+  "cometMintSettings": {
+    "name": "Comet Test",
+    "uri": "http://localhost:3000/",
+    "sequelMint": false
+  }
+}
