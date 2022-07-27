@@ -35,6 +35,9 @@ pub fn handle_add_config_lines(
     if candy_machine.data.hidden_settings.is_some() {
         return err!(CandyError::HiddenSettingsConfigsDoNotHaveConfigLines);
     }
+    if candy_machine.data.comet_mint_settings.is_some() {
+        return err!(CandyError::CometMintSettingsConfigsDoNotHaveConfigLines);
+    }
     for line in &config_lines {
         let array_of_zeroes = vec![0u8; MAX_NAME_LENGTH - line.name.len()];
         let name = line.name.clone() + std::str::from_utf8(&array_of_zeroes).unwrap();

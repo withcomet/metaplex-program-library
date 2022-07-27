@@ -42,4 +42,7 @@ pub const CONFIG_ARRAY_START: usize = 8 + // key
     1 + // allow presale
     9 + // discount price
     32 + // mint key for whitelist
-    1 + 32 + 1; // gatekeeper
+    1 + 32 + 1 + // gatekeeper
+    1 + // option for comet mint settings
+    4 + MAX_NAME_LENGTH + // comet name length
+    4 + MAX_URI_LENGTH; // comet uri length

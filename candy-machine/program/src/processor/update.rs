@@ -38,7 +38,9 @@ pub fn handle_update_candy_machine(
 ) -> Result<()> {
     let candy_machine = &mut ctx.accounts.candy_machine;
 
-    if data.items_available != candy_machine.data.items_available && data.hidden_settings.is_none()
+    if data.items_available != candy_machine.data.items_available
+        && data.hidden_settings.is_none()
+        && data.comet_mint_settings.is_none()
     {
         return err!(CandyError::CannotChangeNumberOfLines);
     }
@@ -48,6 +50,13 @@ pub fn handle_update_candy_machine(
         && data.hidden_settings.is_some()
     {
         return err!(CandyError::CannotSwitchToHiddenSettings);
+    }
+
+    if candy_machine.data.items_available > 0
+        && candy_machine.data.comet_mint_settings.is_none()
+        && data.comet_mint_settings.is_some()
+    {
+        return err!(CandyError::CannotSwitchToCometMintSettings);
     }
 
     let old_uuid = candy_machine.data.uuid.clone();

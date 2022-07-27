@@ -25,6 +25,7 @@ pub fn auto_config(
     retain_authority: bool,
     end_settings: Option<EndSettings>,
     hidden_settings: Option<HiddenSettings>,
+    comet_mint_settings: Option<CometMintSettings>,
 ) -> CandyMachineData {
     let wl_config = candy_manager.whitelist_info.clone();
     let wl_settings = match candy_manager.whitelist_info.set {
@@ -45,6 +46,7 @@ pub fn auto_config(
         hidden_settings,
         wl_settings,
         None,
+        comet_mint_settings,
     )
 }
 
@@ -57,6 +59,7 @@ pub fn custom_config(
     hidden_settings: Option<HiddenSettings>,
     whitelist_mint_settings: Option<WhitelistMintSettings>,
     gatekeeper: Option<GKConfig>,
+    comet_mint_settings: Option<CometMintSettings>,
 ) -> CandyMachineData {
     CandyMachineData {
         uuid: DEFAULT_UUID.to_string(),
@@ -77,5 +80,6 @@ pub fn custom_config(
         hidden_settings,
         whitelist_mint_settings,
         gatekeeper,
+        comet_mint_settings,
     }
 }

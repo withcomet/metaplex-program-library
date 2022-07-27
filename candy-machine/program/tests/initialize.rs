@@ -55,7 +55,7 @@ async fn init_default_success() {
     airdrop(context, &candy_manager.minter.pubkey(), sol(2.0))
         .await
         .unwrap();
-    let candy_data = auto_config(&candy_manager, None, true, true, None, None);
+    let candy_data = auto_config(&candy_manager, None, true, true, None, None, None);
     candy_manager
         .create(context, candy_data.clone())
         .await
