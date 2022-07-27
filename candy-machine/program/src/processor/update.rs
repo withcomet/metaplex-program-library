@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    constants::COLLECTIONS_FEATURE_INDEX, is_feature_active, CandyError, CandyMachine,
-    CandyMachineData,
+    constants::COLLECTIONS_FEATURE_INDEX, is_feature_active, is_sequel_mint, CandyError,
+    CandyMachine, CandyMachineData,
 };
 
 /// Update the candy machine state.
@@ -40,7 +40,7 @@ pub fn handle_update_candy_machine(
 
     if data.items_available != candy_machine.data.items_available
         && data.hidden_settings.is_none()
-        && data.comet_mint_settings.is_none()
+        && is_sequel_mint(data.clone())
     {
         return err!(CandyError::CannotChangeNumberOfLines);
     }

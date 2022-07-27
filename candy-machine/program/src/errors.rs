@@ -74,8 +74,8 @@ pub enum CandyError {
     CandyCollectionRequiresRetainAuthority,
     #[msg("Error within Gateway program")]
     GatewayProgramError,
-    #[msg("Configs that are using Comet Mint Settings do not have config lines")]
-    CometMintSettingsConfigsDoNotHaveConfigLines,
+    #[msg("Sequel mint do not have config lines")]
+    SequelMintDoNotHaveConfigLines,
     #[msg("Cannot Switch to Comet Mint Settings after items available is greater than 0")]
     CannotSwitchToCometMintSettings,
 }
