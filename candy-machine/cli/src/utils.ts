@@ -275,11 +275,14 @@ export async function createCandyMachineV2Account(
   candyAccount,
 ) {
   const size =
-    CONFIG_ARRAY_START_V2 +
-    4 +
-    candyData.itemsAvailable.toNumber() * CONFIG_LINE_SIZE_V2 +
-    8 +
-    2 * (Math.floor(candyData.itemsAvailable.toNumber() / 8) + 1);
+    candyData.hiddenSettings ||
+    (candyData.cometMintSettings && candyData.cometMintSettings.sequelMint)
+      ? CONFIG_ARRAY_START_V2
+      : CONFIG_ARRAY_START_V2 +
+        4 +
+        candyData.itemsAvailable.toNumber() * CONFIG_LINE_SIZE_V2 +
+        8 +
+        2 * (Math.floor(candyData.itemsAvailable.toNumber() / 8) + 1);
 
   return anchor.web3.SystemProgram.createAccount({
     fromPubkey: payerWallet,
@@ -320,6 +323,11 @@ export interface CandyMachineData {
     name: string;
     uri: string;
     hash: Uint8Array;
+  };
+  cometMintSettings: null | {
+    name: string;
+    uri: string;
+    sequelMint: boolean;
   };
   creators: {
     address: anchor.web3.PublicKey;

@@ -223,7 +223,11 @@ programCommand('create_candy_machine')
         saveCache(cacheName, env, cacheContent);
       }
     } else {
-      log.info('Skipping upload to chain as this is a hidden Candy Machine');
+      if (hiddenSettings) {
+        log.info('Skipping upload to chain as this is a hidden Candy Machine');
+      } else {
+        log.info('Skipping upload to chain as this is a sequel-mint Candy Machine');
+      }
     }
 
     console.log(`Done. Successful = ${uploadSuccessful}.`);
