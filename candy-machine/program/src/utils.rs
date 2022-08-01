@@ -12,7 +12,7 @@ use solana_program::{
 };
 use spl_associated_token_account::get_associated_token_address;
 
-use crate::{CandyError, CandyMachine};
+use crate::{CandyError, CandyMachine, CandyMachineData};
 
 pub fn assert_initialized<T: Pack + IsInitialized>(account_info: &AccountInfo) -> Result<T> {
     let account: T = T::unpack_unchecked(&account_info.data.borrow())?;
@@ -178,6 +178,13 @@ pub fn spl_token_burn(params: TokenBurnParams<'_, '_>) -> Result<()> {
 
 pub fn is_feature_active(uuid: &str, feature_index: usize) -> bool {
     uuid.as_bytes()[feature_index] == b"1"[0]
+}
+
+pub fn is_sequel_mint(data: CandyMachineData) -> bool {
+    return match data.comet_mint_settings {
+        Some(cms) => cms.sequel_mint,
+        None => false,
+    };
 }
 
 // string is 6 bytes long, can be any valid utf8 char coming in.

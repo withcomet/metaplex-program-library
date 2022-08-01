@@ -37,15 +37,16 @@ pub async fn initialize_candy_machine(
     token_info: TokenInfo,
 ) -> transport::Result<()> {
     let items_available = candy_data.items_available;
-    let candy_account_size = if candy_data.hidden_settings.is_some() {
-        CONFIG_ARRAY_START
-    } else {
-        CONFIG_ARRAY_START
-            + 4
-            + items_available as usize * CONFIG_LINE_SIZE
-            + 8
-            + 2 * (items_available as usize / 8 + 1)
-    };
+    let candy_account_size =
+        if candy_data.hidden_settings.is_some() || candy_data.comet_mint_settings.is_some() {
+            CONFIG_ARRAY_START
+        } else {
+            CONFIG_ARRAY_START
+                + 4
+                + items_available as usize * CONFIG_LINE_SIZE
+                + 8
+                + 2 * (items_available as usize / 8 + 1)
+        };
 
     let rent = context.banks_client.get_rent().await?;
     let lamports = rent.minimum_balance(candy_account_size);

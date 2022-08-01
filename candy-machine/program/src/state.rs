@@ -43,6 +43,8 @@ pub struct CandyMachineData {
     pub items_available: u64,
     /// If [`Some`] requires gateway tokens on mint
     pub gatekeeper: Option<GatekeeperConfig>,
+    /// comet mint settings
+    pub comet_mint_settings: Option<CometMintSettings>,
 }
 
 /// Individual config line for storing NFT data pre-mint.
@@ -107,4 +109,12 @@ pub struct GatekeeperConfig {
     /// Whether or not the token should expire after minting.
     /// The gatekeeper network must support this if true.
     pub expire_on_use: bool,
+}
+
+/// Comet mint settings
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
+pub struct CometMintSettings {
+    pub name: String,
+    pub uri: String,
+    pub sequel_mint: bool,
 }

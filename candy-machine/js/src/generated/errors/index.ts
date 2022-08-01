@@ -776,6 +776,55 @@ createErrorFromCodeLookup.set(0x1793, () => new GatewayProgramErrorError());
 createErrorFromNameLookup.set('GatewayProgramError', () => new GatewayProgramErrorError());
 
 /**
+ * CometMintSettingsConfigsDoNotHaveConfigLines: 'Configs that are using Comet Mint Settings do not have config lines'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class CometMintSettingsConfigsDoNotHaveConfigLinesError extends Error {
+  readonly code: number = 0x1794;
+  readonly name: string = 'CometMintSettingsConfigsDoNotHaveConfigLines';
+  constructor() {
+    super('Configs that are using Comet Mint Settings do not have config lines');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, CometMintSettingsConfigsDoNotHaveConfigLinesError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(
+  0x1794,
+  () => new CometMintSettingsConfigsDoNotHaveConfigLinesError(),
+);
+createErrorFromNameLookup.set(
+  'CometMintSettingsConfigsDoNotHaveConfigLines',
+  () => new CometMintSettingsConfigsDoNotHaveConfigLinesError(),
+);
+
+/**
+ * CannotSwitchToCometMintSettings: 'Cannot Switch to Comet Mint Settings after items available is greater than 0'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class CannotSwitchToCometMintSettingsError extends Error {
+  readonly code: number = 0x1795;
+  readonly name: string = 'CannotSwitchToCometMintSettings';
+  constructor() {
+    super('Cannot Switch to Comet Mint Settings after items available is greater than 0');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, CannotSwitchToCometMintSettingsError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x1795, () => new CannotSwitchToCometMintSettingsError());
+createErrorFromNameLookup.set(
+  'CannotSwitchToCometMintSettings',
+  () => new CannotSwitchToCometMintSettingsError(),
+);
+
+/**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  * @category generated

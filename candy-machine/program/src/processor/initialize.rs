@@ -5,7 +5,7 @@ use spl_token::state::Mint;
 use crate::{
     assert_initialized, assert_owned_by, cmp_pubkeys,
     constants::{CONFIG_ARRAY_START, CONFIG_LINE_SIZE},
-    CandyError, CandyMachine, CandyMachineData,
+    is_sequel_mint, CandyError, CandyMachine, CandyMachineData,
 };
 
 /// Create a new candy machine.
@@ -35,7 +35,7 @@ pub fn handle_initialize_candy_machine(
     }
 
     let mut candy_machine = CandyMachine {
-        data,
+        data: data.clone(),
         authority: ctx.accounts.authority.key(),
         wallet: ctx.accounts.wallet.key(),
         token_mint: None,
@@ -72,15 +72,15 @@ pub fn handle_initialize_candy_machine(
 
     let mut new_data = CandyMachine::discriminator().try_to_vec().unwrap();
     new_data.append(&mut candy_machine.try_to_vec().unwrap());
-    let mut data = candy_machine_account.data.borrow_mut();
+    let mut cm_data = candy_machine_account.data.borrow_mut();
     // god forgive me couldnt think of better way to deal with this
     for i in 0..new_data.len() {
-        data[i] = new_data[i];
+        cm_data[i] = new_data[i];
     }
 
-    // only if we are not using hidden settings we will have space for
+    // only if we are not using hidden settings / comet sequel mint we will have space for
     // the config lines
-    if candy_machine.data.hidden_settings.is_none() {
+    if candy_machine.data.hidden_settings.is_none() && !is_sequel_mint(candy_machine.data.clone()) {
         let vec_start = CONFIG_ARRAY_START
             + 4
             + (candy_machine.data.items_available as usize) * CONFIG_LINE_SIZE;
@@ -91,7 +91,7 @@ pub fn handle_initialize_candy_machine(
             .ok_or(CandyError::NumericalOverflowError)? as u32)
             .to_le_bytes();
         for i in 0..4 {
-            data[vec_start + i] = as_bytes[i]
+            cm_data[vec_start + i] = as_bytes[i]
         }
     }
 
@@ -99,7 +99,7 @@ pub fn handle_initialize_candy_machine(
 }
 
 fn get_space_for_candy(data: CandyMachineData) -> Result<usize> {
-    let num = if data.hidden_settings.is_some() {
+    let num = if data.hidden_settings.is_some() || is_sequel_mint(data.clone()) {
         CONFIG_ARRAY_START
     } else {
         CONFIG_ARRAY_START

@@ -6,7 +6,7 @@ use mpl_token_metadata::state::{MAX_NAME_LENGTH, MAX_URI_LENGTH};
 
 use crate::{
     constants::{CONFIG_ARRAY_START, CONFIG_LINE_SIZE},
-    CandyError, CandyMachine, ConfigLine,
+    is_sequel_mint, CandyError, CandyMachine, ConfigLine,
 };
 
 /// Add multiple config lines to the candy machine.
@@ -34,6 +34,9 @@ pub fn handle_add_config_lines(
     }
     if candy_machine.data.hidden_settings.is_some() {
         return err!(CandyError::HiddenSettingsConfigsDoNotHaveConfigLines);
+    }
+    if is_sequel_mint(candy_machine.data.clone()) {
+        return err!(CandyError::SequelMintDoNotHaveConfigLines);
     }
     for line in &config_lines {
         let array_of_zeroes = vec![0u8; MAX_NAME_LENGTH - line.name.len()];

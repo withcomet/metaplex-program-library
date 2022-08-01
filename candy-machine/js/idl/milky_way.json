@@ -1,5 +1,5 @@
 {
-  "version": "4.0.2",
+  "version": "0.1.0",
   "name": "candy_machine",
   "instructions": [
     {
@@ -534,6 +534,14 @@
                 "defined": "GatekeeperConfig"
               }
             }
+          },
+          {
+            "name": "cometMintSettings",
+            "type": {
+              "option": {
+                "defined": "CometMintSettings"
+              }
+            }
           }
         ]
       }
@@ -656,6 +664,26 @@
           },
           {
             "name": "expireOnUse",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CometMintSettings",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "sequelMint",
             "type": "bool"
           }
         ]
@@ -870,10 +898,20 @@
       "code": 6035,
       "name": "GatewayProgramError",
       "msg": "Error within Gateway program"
+    },
+    {
+      "code": 6036,
+      "name": "CometMintSettingsConfigsDoNotHaveConfigLines",
+      "msg": "Configs that are using Comet Mint Settings do not have config lines"
+    },
+    {
+      "code": 6037,
+      "name": "CannotSwitchToCometMintSettings",
+      "msg": "Cannot Switch to Comet Mint Settings after items available is greater than 0"
     }
   ],
   "metadata": {
-    "address": "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ",
+    "address": "mkwGBRGbNv8aWekyAx8Af5ebXaQr5UeJFZnxgUqcZ7B",
     "origin": "anchor",
     "binaryVersion": "0.24.2",
     "libVersion": "0.24.2"
