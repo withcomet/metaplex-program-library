@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as anchor from '@project-serum/anchor';
 import { getAccount, getMint } from '@solana/spl-token';
-import { PROGRAM_ID } from '@withcomet/milky-way/src/generated';
 import { program } from 'commander';
 import fs from 'fs';
 import log from 'loglevel';
@@ -12,10 +11,18 @@ import {
   CONFIG_ARRAY_START_V2,
   CONFIG_LINE_SIZE_V2,
   DEFAULT_CLUSTER,
+  MILKY_WAY_PROGRAM_ID,
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_METADATA_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from './constants';
+
+export type AccountAndPubkey = {
+  pubkey: string;
+  account: anchor.web3.AccountInfo<Buffer>;
+};
+
+export type StringPublicKey = string;
 
 export function programCommand(name: string) {
   return program
@@ -64,8 +71,8 @@ export async function loadMilkyWayProgram(
   const provider = new anchor.AnchorProvider(solConnection, walletWrapper, {
     preflightCommitment: 'recent',
   });
-  const idl = await anchor.Program.fetchIdl(PROGRAM_ID, provider);
-  const program = new anchor.Program(idl, PROGRAM_ID, provider);
+  const idl = await anchor.Program.fetchIdl(MILKY_WAY_PROGRAM_ID, provider);
+  const program = new anchor.Program(idl, MILKY_WAY_PROGRAM_ID, provider);
   log.debug('program id from anchor', program.programId.toBase58());
   return program;
 }
@@ -289,7 +296,7 @@ export async function createCandyMachineV2Account(
     newAccountPubkey: candyAccount,
     space: size,
     lamports: await anchorProgram.provider.connection.getMinimumBalanceForRentExemption(size),
-    programId: PROGRAM_ID,
+    programId: MILKY_WAY_PROGRAM_ID,
   });
 }
 
@@ -378,7 +385,7 @@ export const getCandyMachineCreator = async (
 ): Promise<[anchor.web3.PublicKey, number]> => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from('candy_machine'), candyMachine.toBuffer()],
-    PROGRAM_ID,
+    MILKY_WAY_PROGRAM_ID,
   );
 };
 
@@ -418,4 +425,59 @@ export function saveCache(
     fs.mkdirSync(cPath, { recursive: true });
   }
   fs.writeFileSync(cachePath(env, cacheName, cPath), JSON.stringify(cacheContent));
+}
+
+export async function getProgramAccounts(
+  connection: anchor.web3.Connection,
+  programId: string,
+  configOrCommitment?: any,
+): Promise<AccountAndPubkey[]> {
+  const extra: any = {};
+  let commitment;
+  //let encoding;
+
+  if (configOrCommitment) {
+    if (typeof configOrCommitment === 'string') {
+      commitment = configOrCommitment;
+    } else {
+      commitment = configOrCommitment.commitment;
+      //encoding = configOrCommitment.encoding;
+
+      if (configOrCommitment.dataSlice) {
+        extra.dataSlice = configOrCommitment.dataSlice;
+      }
+
+      if (configOrCommitment.filters) {
+        extra.filters = configOrCommitment.filters;
+      }
+    }
+  }
+
+  const args = connection._buildArgs([programId], commitment, 'base64', extra);
+  const unsafeRes = await (connection as any)._rpcRequest('getProgramAccounts', args);
+
+  return unsafeResAccounts(unsafeRes.result);
+}
+
+function unsafeAccount(account: anchor.web3.AccountInfo<[string, string]>) {
+  return {
+    // TODO: possible delay parsing could be added here
+    data: Buffer.from(account.data[0], 'base64'),
+    executable: account.executable,
+    lamports: account.lamports,
+    // TODO: maybe we can do it in lazy way? or just use string
+    owner: account.owner,
+  } as anchor.web3.AccountInfo<Buffer>;
+}
+
+function unsafeResAccounts(
+  data: Array<{
+    account: anchor.web3.AccountInfo<[string, string]>;
+    pubkey: string;
+  }>,
+) {
+  return data.map((item) => ({
+    account: unsafeAccount(item.account),
+    pubkey: item.pubkey,
+  }));
 }
