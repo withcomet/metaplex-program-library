@@ -2088,7 +2088,6 @@ __metadata:
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.50.1
     "@types/node": ^18.6.1
-    "@withcomet/milky-way": "workspace:candy-machine/js"
     commander: ^9.4.0
     loglevel: ^1.8.0
     typescript: ^4.7.4
