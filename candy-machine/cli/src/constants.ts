@@ -1,5 +1,8 @@
 import * as anchor from '@project-serum/anchor';
 
+export const MILKY_WAY_PROGRAM_ID = new anchor.web3.PublicKey(
+  'mkwGBRGbNv8aWekyAx8Af5ebXaQr5UeJFZnxgUqcZ7B',
+);
 export const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey(
   'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
 );

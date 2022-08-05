@@ -9,8 +9,9 @@ import {
 } from '@solana/spl-token';
 import { program } from 'commander';
 import log from 'loglevel';
-import { TOKEN_METADATA_PROGRAM_ID, TOKEN_PROGRAM_ID } from './constants';
+import { MILKY_WAY_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID, TOKEN_PROGRAM_ID } from './constants';
 import {
+  AccountAndPubkey,
   chunks,
   createCandyMachineV2Account,
   getAtaForMint,
@@ -18,6 +19,7 @@ import {
   getMasterEdition,
   getMetadata,
   getMilkyWayConfig,
+  getProgramAccounts,
   getTokenWallet,
   loadCache,
   loadMilkyWayProgram,
@@ -391,6 +393,93 @@ programCommand('mint_token')
 
     console.log(`txId: ${txId}`);
     console.log(`mint address: ${mint.publicKey.toBase58()}`);
+  });
+
+programCommand('withdraw')
+  .option('-d ,--dry', 'Show Candy Machine withdraw amount without withdrawing.')
+  .option('-ch, --charity <string>', 'Which charity?', '')
+  .option('-cp, --charityPercent <string>', 'Which percent to charity?', '0')
+  .option('-r, --rpc-url <string>', 'custom rpc url since this is a heavy command')
+  .action(async (directory, cmd) => {
+    const { keypair, env, dry, charity, charityPercent, rpcUrl } = cmd.opts();
+    if (charityPercent < 0 || charityPercent > 100) {
+      log.error('Charity percentage needs to be between 0 and 100');
+      return;
+    }
+    const walletKeyPair = loadWalletKey(keypair);
+    const milkyWayProgram = await loadMilkyWayProgram(walletKeyPair, env, rpcUrl);
+    const configOrCommitment = {
+      commitment: 'confirmed',
+      filters: [
+        {
+          memcmp: {
+            offset: 8,
+            bytes: walletKeyPair.publicKey.toBase58(),
+          },
+        },
+      ],
+    };
+    const machines: AccountAndPubkey[] = await getProgramAccounts(
+      milkyWayProgram.provider.connection,
+      MILKY_WAY_PROGRAM_ID.toBase58(),
+      configOrCommitment,
+    );
+    let t = 0;
+    for (const cg in machines) {
+      t += machines[cg].account.lamports;
+    }
+    const totalValue = t / anchor.web3.LAMPORTS_PER_SOL;
+    const cpf = parseFloat(charityPercent);
+    let charityPub;
+    log.info(`Total Number of Candy Machine Config Accounts to drain ${machines.length}`);
+    log.info(`${totalValue} SOL locked up in configs`);
+    if (!!charity && charityPercent > 0) {
+      const donation = totalValue * (100 / charityPercent);
+      charityPub = new anchor.web3.PublicKey(charity);
+      log.info(`Of that ${totalValue} SOL, ${donation} will be donated to ${charity}. Thank you!`);
+    }
+
+    if (!dry) {
+      const errors = [];
+      log.info(
+        'WARNING: This command will drain ALL of the Candy Machine config accounts that are owned by your current KeyPair, this will break your Candy Machine if its still in use',
+      );
+      for (const cg of machines) {
+        try {
+          if (cg.account.lamports > 0) {
+            const instructions = [];
+            if (!!charityPub && cpf > 0) {
+              const charityAddress = new anchor.web3.PublicKey(charityPub);
+              instructions.push(
+                anchor.web3.SystemProgram.transfer({
+                  fromPubkey: keypair.publicKey,
+                  toPubkey: new anchor.web3.PublicKey(charityAddress),
+                  lamports: Math.floor(cg.account.lamports * (100 / cpf)),
+                }),
+              );
+            }
+
+            const txId = await milkyWayProgram.rpc.withdrawFunds({
+              accounts: {
+                candyMachine: new anchor.web3.PublicKey(cg.pubkey),
+                authority: walletKeyPair.publicKey,
+              },
+              signers: [walletKeyPair],
+              instructions,
+            });
+
+            log.info(`${cg.pubkey} has been withdrawn. \nTransaction Signarure: ${txId}`);
+          }
+        } catch (e) {
+          log.error(`Withdraw has failed for config account ${cg.pubkey} Error: ${e.message}`);
+          errors.push(e);
+        }
+      }
+      const successCount = machines.length - errors.length;
+      const richness = successCount === machines.length ? 'rich again' : 'kinda rich';
+      log.info(`Congratulations, ${successCount} config accounts have been successfully drained.`);
+      log.info(`Now you ${richness}, please consider supporting Open Source developers.`);
+    }
   });
 
 program.parse(process.argv);
