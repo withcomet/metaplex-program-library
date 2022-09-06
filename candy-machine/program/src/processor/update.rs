@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    constants::COLLECTIONS_FEATURE_INDEX, is_feature_active, is_sequel_mint, CandyError,
-    CandyMachine, CandyMachineData,
+    constants::{COLLECTIONS_FEATURE_INDEX, FREEZE_FEATURE_INDEX},
+    is_feature_active, is_sequel_mint, CandyError, CandyMachine, CandyMachineData,
 };
 
 /// Update the candy machine state.
@@ -16,6 +16,8 @@ pub struct UpdateCandyMachine<'info> {
     authority: Signer<'info>,
     /// CHECK: wallet can be any account and is not written to or read
     wallet: UncheckedAccount<'info>,
+    // Remaining accounts.
+    // token mint
 }
 
 pub fn handle_update_authority(
@@ -25,6 +27,11 @@ pub fn handle_update_authority(
     let candy_machine = &mut ctx.accounts.candy_machine;
 
     if let Some(new_auth) = new_authority {
+        if is_feature_active(&candy_machine.data.uuid, FREEZE_FEATURE_INDEX)
+            && candy_machine.authority != new_auth
+        {
+            return err!(CandyError::NoChangingAuthorityWithFreeze);
+        }
         candy_machine.authority = new_auth;
     }
 
@@ -45,6 +52,11 @@ pub fn handle_update_candy_machine(
         return err!(CandyError::CannotChangeNumberOfLines);
     }
 
+    let token_mint = ctx
+        .remaining_accounts
+        .get(0)
+        .map(|account_info| account_info.key());
+
     if candy_machine.data.items_available > 0
         && candy_machine.data.hidden_settings.is_none()
         && data.hidden_settings.is_some()
@@ -60,17 +72,18 @@ pub fn handle_update_candy_machine(
     }
 
     let old_uuid = candy_machine.data.uuid.clone();
-    candy_machine.wallet = ctx.accounts.wallet.key();
+    if is_feature_active(&old_uuid, FREEZE_FEATURE_INDEX) && candy_machine.token_mint != token_mint
+    {
+        return err!(CandyError::NoChangingTokenWithFreeze);
+    }
     if is_feature_active(&old_uuid, COLLECTIONS_FEATURE_INDEX) && !data.retain_authority {
         return err!(CandyError::CandyCollectionRequiresRetainAuthority);
     }
+
+    candy_machine.wallet = ctx.accounts.wallet.key();
     candy_machine.data = data;
     candy_machine.data.uuid = old_uuid;
+    candy_machine.token_mint = token_mint;
 
-    if !ctx.remaining_accounts.is_empty() {
-        candy_machine.token_mint = Some(ctx.remaining_accounts[0].key())
-    } else {
-        candy_machine.token_mint = None;
-    }
     Ok(())
 }
