@@ -716,7 +716,7 @@ pub fn get_config_line(
 ) -> Result<ConfigLine> {
     if let Some(hs) = &a.data.hidden_settings {
         return Ok(ConfigLine {
-            name: hs.name.clone() + "#" + &(mint_number + 1).to_string(),
+            name: hs.name.clone() + "#" + &mint_number.to_string(),
             uri: hs.uri.clone(),
         });
     }
@@ -724,8 +724,8 @@ pub fn get_config_line(
     if let Some(cms) = &a.data.comet_mint_settings {
         if cms.sequel_mint {
             return Ok(ConfigLine {
-                name: cms.name.clone() + " #" + &(mint_number + 1).to_string(),
-                uri: cms.uri.clone() + &(mint_number + 1).to_string(),
+                name: cms.name.clone() + " #" + &mint_number.to_string(),
+                uri: cms.uri.clone() + &mint_number.to_string(),
             });
         }
     }
