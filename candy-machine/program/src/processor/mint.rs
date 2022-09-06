@@ -23,8 +23,8 @@ use solana_program::{
 
 use crate::{
     constants::{
-        A_TOKEN, BLOCK_HASHES, BOT_FEE, COLLECTIONS_FEATURE_INDEX, CONFIG_ARRAY_START,
-        CONFIG_LINE_SIZE, CUPCAKE_ID, EXPIRE_OFFSET, GUMDROP_ID, PREFIX,
+        A_TOKEN, BLOCK_HASHES, BOT_FEE, CONFIG_ARRAY_START, CONFIG_LINE_SIZE, CUPCAKE_ID,
+        EXPIRE_OFFSET, GUMDROP_ID, PREFIX,
     },
     utils::*,
     CandyError, CandyMachine, CandyMachineData, ConfigLine, EndSettingType, WhitelistMintMode,
