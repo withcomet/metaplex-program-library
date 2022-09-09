@@ -35,12 +35,14 @@ pub fn handle_initialize_candy_machine(
     }
 
     let mut candy_machine = CandyMachine {
-        data: data.clone(),
+        data,
         authority: ctx.accounts.authority.key(),
         wallet: ctx.accounts.wallet.key(),
         token_mint: None,
         items_redeemed: 0,
     };
+
+    candy_machine.data.uuid = "000000".to_string();
 
     if !ctx.remaining_accounts.is_empty() {
         let token_mint_info = &ctx.remaining_accounts[0];
@@ -72,10 +74,10 @@ pub fn handle_initialize_candy_machine(
 
     let mut new_data = CandyMachine::discriminator().try_to_vec().unwrap();
     new_data.append(&mut candy_machine.try_to_vec().unwrap());
-    let mut cm_data = candy_machine_account.data.borrow_mut();
+    let mut data = candy_machine_account.data.borrow_mut();
     // god forgive me couldnt think of better way to deal with this
     for i in 0..new_data.len() {
-        cm_data[i] = new_data[i];
+        data[i] = new_data[i];
     }
 
     // only if we are not using hidden settings / comet sequel mint we will have space for
@@ -91,7 +93,7 @@ pub fn handle_initialize_candy_machine(
             .ok_or(CandyError::NumericalOverflowError)? as u32)
             .to_le_bytes();
         for i in 0..4 {
-            cm_data[vec_start + i] = as_bytes[i]
+            data[vec_start + i] = as_bytes[i]
         }
     }
 

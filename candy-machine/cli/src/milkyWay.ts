@@ -9,7 +9,12 @@ import {
 } from '@solana/spl-token';
 import { program } from 'commander';
 import log from 'loglevel';
-import { MILKY_WAY_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID, TOKEN_PROGRAM_ID } from './constants';
+import {
+  CONFIG_ARRAY_START_V2,
+  MILKY_WAY_PROGRAM_ID,
+  TOKEN_METADATA_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from './constants';
 import {
   AccountAndPubkey,
   chunks,
@@ -31,6 +36,7 @@ import {
 
 program.version('0.1.0');
 log.setLevel(log.levels.INFO);
+console.log(CONFIG_ARRAY_START_V2);
 
 programCommand('create_candy_machine')
   .requiredOption('-cp, --config-path <string>', 'JSON file with candy machine settings')
@@ -141,8 +147,8 @@ programCommand('create_candy_machine')
         if (candyData.cometMintSettings) {
           keys.map((k) => {
             cacheContent.items[k] = {
-              name: candyData.cometMintSettings.name + ' #' + (k + 1).toString(),
-              uri: candyData.cometMintSettings.uri + (k + 1).toString(),
+              name: candyData.cometMintSettings.name + ' #' + k.toString(),
+              uri: candyData.cometMintSettings.uri + k.toString(),
               onChain: candyData.cometMintSettings.sequelMint,
             };
           });
